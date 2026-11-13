@@ -1,0 +1,45 @@
+{
+  "judul": "Diagnosis Gangguan WiFi pada Laptop (Windows)",
+  "batas": "Aturan dibuat dari 3 sumber resmi (Microsoft Support, Duke OIT, University of the Incarnate Word) dan hanya berlaku untuk gangguan WiFi di laptop Windows pada jaringan rumah/kampus biasa. Nilai CF aturan adalah penilaian penulis (sumber tidak memberi angka), jadi hasilnya saran awal, bukan keputusan akhir. Gangguan serius tetap perlu dicek teknisi atau penyedia internet (ISP).",
+  "sumber": {
+    "S1": "Fix Wi-Fi connection issues in Windows, Microsoft Support, https://support.microsoft.com/help/10741",
+    "S2": "Slow Wi-Fi troubleshooting (channel dan interferensi tetangga), Duke University OIT, https://oit.duke.edu/help/articles/kb0032708/",
+    "S3": "Internet Connectivity Troubleshooting, University of the Incarnate Word Help Desk, https://help.uiw.edu/support/solutions/articles/17000169295"
+  },
+  "fakta": {
+    "laptop_tak_bisa_konek": "Apakah laptop Anda tidak bisa terhubung ke internet lewat WiFi?",
+    "perangkat_lain_bisa_konek": "Apakah HP/perangkat lain bisa terhubung ke WiFi yang sama?",
+    "mode_pesawat_aktif": "Apakah mode pesawat (Airplane mode) di laptop aktif?",
+    "wifi_laptop_mati": "Apakah WiFi di laptop dalam keadaan mati?",
+    "masalah_setelah_update": "Apakah masalah mulai muncul setelah update Windows/driver?",
+    "ping_gateway_berhasil": "Apakah ping ke gateway (IP router) mendapat balasan?",
+    "tidak_ada_internet": "Apakah ikon WiFi menampilkan 'No Internet'?",
+    "ethernet_bisa_internet": "Apakah internet normal bila laptop memakai kabel Ethernet?",
+    "dekat_microwave_telepon": "Apakah ada microwave/telepon nirkabel dekat router?",
+    "banyak_wifi_tetangga": "Apakah banyak jaringan WiFi tetangga yang sinyalnya kuat di sekitar Anda?",
+    "koneksi_lambat": "Apakah koneksi terasa lambat (bukan putus)?",
+    "jauh_dari_router": "Apakah posisi Anda jauh dari router?",
+    "banyak_penghalang": "Apakah banyak penghalang (tembok/lemari) antara Anda dan router?"
+  },
+  "hipotesis": {
+    "perangkat_bermasalah": {"label": "Masalah ada di perangkat (laptop)", "akhir": false},
+    "wifi_laptop_nonaktif": {"label": "WiFi laptop nonaktif", "akhir": false},
+    "sinyal_terganggu": {"label": "Sinyal WiFi terganggu", "akhir": false},
+    "setelan_wifi_salah": {"label": "Setelan WiFi laptop salah (WiFi mati/mode pesawat)", "akhir": true, "saran": "Matikan mode pesawat dan nyalakan WiFi, lalu sambungkan ulang (S1)."},
+    "driver_adaptor_bermasalah": {"label": "Driver adaptor jaringan bermasalah", "akhir": true, "saran": "Uninstall driver adaptor jaringan di Device Manager lalu restart, atau pasang driver terbaru dari situs produsen (S1)."},
+    "modem_atau_isp_bermasalah": {"label": "Modem atau ISP bermasalah", "akhir": true, "saran": "Restart modem dan router, lalu cek gangguan layanan ke ISP (S1)."},
+    "router_wifi_bermasalah": {"label": "Router WiFi bermasalah", "akhir": true, "saran": "Restart router dan pastikan firmware terbaru (S1)."},
+    "interferensi_sinyal": {"label": "Sinyal lemah/terganggu interferensi", "akhir": true, "saran": "Dekatkan ke router, jauhkan microwave/telepon nirkabel, pindah ke 5 GHz atau ganti channel (S2, S3)."}
+  },
+  "aturan": [
+    {"id": "R1", "jika": ["laptop_tak_bisa_konek", "perangkat_lain_bisa_konek"], "mode": "dan", "maka": "perangkat_bermasalah", "cf": 0.8, "sumber": ["S1"]},
+    {"id": "R2", "jika": ["mode_pesawat_aktif", "wifi_laptop_mati"], "mode": "atau", "maka": "wifi_laptop_nonaktif", "cf": 0.95, "sumber": ["S1"]},
+    {"id": "R3", "jika": ["perangkat_bermasalah", "wifi_laptop_nonaktif"], "mode": "dan", "maka": "setelan_wifi_salah", "cf": 0.9, "sumber": ["S1"]},
+    {"id": "R4", "jika": ["perangkat_bermasalah", "masalah_setelah_update"], "mode": "dan", "maka": "driver_adaptor_bermasalah", "cf": 0.7, "sumber": ["S1"]},
+    {"id": "R5", "jika": ["ping_gateway_berhasil", "tidak_ada_internet"], "mode": "dan", "maka": "modem_atau_isp_bermasalah", "cf": 0.8, "sumber": ["S1"]},
+    {"id": "R6", "jika": ["laptop_tak_bisa_konek", "ethernet_bisa_internet"], "mode": "dan", "maka": "router_wifi_bermasalah", "cf": 0.8, "sumber": ["S1"]},
+    {"id": "R7", "jika": ["dekat_microwave_telepon", "banyak_wifi_tetangga"], "mode": "atau", "maka": "sinyal_terganggu", "cf": 0.7, "sumber": ["S2", "S3"]},
+    {"id": "R8", "jika": ["sinyal_terganggu", "koneksi_lambat"], "mode": "dan", "maka": "interferensi_sinyal", "cf": 0.7, "sumber": ["S2", "S3"]},
+    {"id": "R9", "jika": ["jauh_dari_router", "banyak_penghalang"], "mode": "atau", "maka": "interferensi_sinyal", "cf": 0.6, "sumber": ["S3"]}
+  ]
+}
